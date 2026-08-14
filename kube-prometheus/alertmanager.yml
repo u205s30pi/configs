@@ -1,0 +1,18 @@
+# Alertmanager config for kube-prometheus
+# Added route for kube-state-metrics alerts to page SRE on-call
+route:
+  group_by: ['alertname', 'cluster']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'sre-page'
+  routes:
+    - match:
+        severity: 'critical'
+      receiver: 'sre-page'
+      continue: false
+receivers:
+  - name: 'sre-page'
+    webhook_configs:
+      - url: 'http://localhost:9093/alertmanager/hooks/sre'
+        send_resolved: true
